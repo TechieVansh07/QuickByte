@@ -1,0 +1,1064 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QuickByte | Food Delivery</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        :root {
+            --green: #087f5b;
+            --green-dark: #066849;
+            --green-light: #e8f6ef;
+            --bg: #f6f8f7;
+            --text: #202522;
+            --muted: #737b76;
+            --border: #e8ece9;
+            --white: #ffffff;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, Helvetica, sans-serif;
+            color: var(--text);
+            background: var(--bg);
+        }
+
+        button {
+            font-family: inherit;
+            cursor: pointer;
+            transition: 0.2s ease;
+        }
+
+        button:disabled {
+            opacity: 0.55;
+            cursor: not-allowed;
+        }
+
+        .navbar {
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            background: rgba(255, 255, 255, 0.96);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .nav-inner {
+            max-width: 1180px;
+            margin: auto;
+            padding: 17px 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 18px;
+        }
+
+        .brand {
+            margin: 0;
+            font-size: 27px;
+            font-weight: 800;
+            color: var(--green);
+            letter-spacing: -1px;
+        }
+
+        .brand span {
+            color: var(--text);
+        }
+
+        .nav-right {
+            display: flex;
+            align-items: center;
+            gap: 18px;
+        }
+
+        .welcome {
+            color: var(--muted);
+            font-size: 14px;
+        }
+
+        .welcome strong {
+            color: var(--text);
+        }
+
+        .logout-btn {
+            padding: 10px 15px;
+            border: 1px solid var(--border);
+            background: white;
+            color: #424943;
+            border-radius: 9px;
+            font-weight: 600;
+        }
+
+        .logout-btn:hover {
+            background: #f2f5f3;
+        }
+
+        .container {
+            width: min(1180px, calc(100% - 40px));
+            margin: auto;
+        }
+
+        .hero {
+            margin-top: 30px;
+            min-height: 255px;
+            padding: 38px 42px;
+            border-radius: 22px;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 25px;
+            background: linear-gradient(120deg, #e6f6eb, #f3faf4);
+            border: 1px solid #dcefe2;
+        }
+
+        .hero-content {
+            max-width: 610px;
+        }
+
+        .eyebrow {
+            display: inline-block;
+            padding: 7px 12px;
+            border-radius: 30px;
+            color: var(--green);
+            background: white;
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+        }
+
+        .hero h2 {
+            margin: 16px 0 10px;
+            font-size: clamp(29px, 4vw, 43px);
+            line-height: 1.12;
+            letter-spacing: -1.3px;
+        }
+
+        .hero h2 span {
+            color: var(--green);
+        }
+
+        .hero p {
+            max-width: 430px;
+            margin: 0;
+            color: #647269;
+            line-height: 1.7;
+            font-size: 15px;
+        }
+
+        .hero-art {
+            flex-shrink: 0;
+            width: 170px;
+            height: 170px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.7);
+            display: grid;
+            place-items: center;
+            font-size: 88px;
+        }
+
+        .perks {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin: 22px 0 36px;
+        }
+
+        .perk {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 17px;
+            border: 1px solid var(--border);
+            border-radius: 13px;
+            background: white;
+        }
+
+        .perk-icon {
+            width: 43px;
+            height: 43px;
+            display: grid;
+            place-items: center;
+            flex-shrink: 0;
+            border-radius: 12px;
+            background: var(--green-light);
+            font-size: 22px;
+        }
+
+        .perk strong {
+            display: block;
+            font-size: 14px;
+        }
+
+        .perk small {
+            display: block;
+            margin-top: 5px;
+            color: var(--muted);
+            font-size: 12px;
+        }
+
+        .section-heading {
+            display: flex;
+            align-items: end;
+            justify-content: space-between;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .section-heading h2 {
+            margin: 0;
+            font-size: 27px;
+            letter-spacing: -0.5px;
+        }
+
+        .section-heading p {
+            margin: 7px 0 0;
+            color: var(--muted);
+            font-size: 14px;
+        }
+
+        .menu-grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 20px;
+        }
+
+        .food-card {
+            display: flex;
+            flex-direction: column;
+            min-width: 0;
+            overflow: hidden;
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .food-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 10px 25px #173c2810;
+        }
+
+        .food-visual {
+            height: 155px;
+            display: grid;
+            place-items: center;
+            background: linear-gradient(140deg, #eef8f0, #f9f6ed);
+            font-size: 69px;
+        }
+
+        .food-info {
+            padding: 19px;
+            display: flex;
+            flex: 1;
+            flex-direction: column;
+        }
+
+        .food-info h3 {
+            margin: 0 0 8px;
+            font-size: 19px;
+        }
+
+        .food-info p {
+            margin: 0 0 18px;
+            color: var(--muted);
+            font-size: 13px;
+            line-height: 1.5;
+        }
+
+        .food-bottom {
+            margin-top: auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+        }
+
+        .food-price {
+            font-size: 20px;
+            font-weight: 800;
+        }
+
+        .add-btn {
+            padding: 10px 13px;
+            border: none;
+            border-radius: 9px;
+            color: white;
+            background: var(--green);
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+        .add-btn:hover,
+        .checkout-btn:hover {
+            background: var(--green-dark);
+        }
+
+        .loading-card {
+            padding: 25px;
+            background: white;
+            border-radius: 12px;
+            color: var(--muted);
+        }
+
+        .cart-section {
+            margin: 48px 0;
+            scroll-margin-top: 95px;
+        }
+
+        .cart-layout {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) 320px;
+            align-items: start;
+            gap: 22px;
+        }
+
+        .cart-items-card,
+        .cart-summary {
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 15px;
+            padding: 22px;
+        }
+
+        .cart-items-card h3,
+        .cart-summary h3 {
+            margin: 0 0 18px;
+            font-size: 19px;
+        }
+
+        .cart-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 14px;
+            padding: 16px 0;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .cart-row:last-of-type {
+            border-bottom: none;
+        }
+
+        .cart-item-name {
+            margin: 0 0 6px;
+            font-weight: 700;
+            font-size: 15px;
+        }
+
+        .cart-item-price {
+            color: var(--muted);
+            font-size: 13px;
+        }
+
+        .quantity-controls {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .qty-btn {
+            width: 31px;
+            height: 31px;
+            display: grid;
+            place-items: center;
+            border: 1px solid #cfe4d6;
+            border-radius: 8px;
+            color: var(--green);
+            background: #f6fbf7;
+            font-size: 18px;
+        }
+
+        .qty-number {
+            min-width: 14px;
+            text-align: center;
+            font-weight: 700;
+        }
+
+        .empty-cart {
+            padding: 35px 12px;
+            text-align: center;
+        }
+
+        .empty-cart .empty-icon {
+            font-size: 46px;
+        }
+
+        .empty-cart h4 {
+            margin: 13px 0 7px;
+            font-size: 18px;
+        }
+
+        .empty-cart p {
+            color: var(--muted);
+            font-size: 14px;
+        }
+
+        .browse-btn {
+            margin-top: 8px;
+            padding: 11px 15px;
+            border: 1px solid #cfe4d6;
+            border-radius: 9px;
+            background: white;
+            color: var(--green);
+            font-weight: 700;
+        }
+
+        .summary-line {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            padding: 10px 0;
+            color: #606861;
+            font-size: 14px;
+        }
+
+        .summary-line.total {
+            margin-top: 7px;
+            padding-top: 17px;
+            border-top: 1px solid var(--border);
+            color: var(--text);
+            font-size: 20px;
+            font-weight: 800;
+        }
+
+        .checkout-btn {
+            width: 100%;
+            margin-top: 15px;
+            padding: 14px;
+            border: none;
+            border-radius: 10px;
+            background: var(--green);
+            color: white;
+            font-size: 15px;
+            font-weight: 700;
+        }
+
+        .clear-btn {
+            width: 100%;
+            margin-top: 9px;
+            padding: 11px;
+            border: 1px solid var(--border);
+            border-radius: 9px;
+            background: white;
+            color: #656d67;
+            font-size: 13px;
+        }
+
+        .clear-btn:hover {
+            background: #fff4f3;
+            color: #b42318;
+        }
+
+        .summary-note {
+            margin: 14px 0 0;
+            color: var(--muted);
+            font-size: 12px;
+            line-height: 1.6;
+        }
+
+        .site-footer {
+            padding: 25px 15px;
+            border-top: 1px solid var(--border);
+            text-align: center;
+            color: var(--muted);
+            font-size: 13px;
+            line-height: 1.8;
+        }
+
+        @media (max-width: 850px) {
+            .menu-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+
+            .cart-layout {
+                grid-template-columns: 1fr;
+            }
+
+            .hero-art {
+                width: 130px;
+                height: 130px;
+                font-size: 68px;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .nav-inner {
+                padding: 15px;
+            }
+
+            .brand {
+                font-size: 23px;
+            }
+
+            .nav-right {
+                gap: 9px;
+            }
+
+            .welcome {
+                font-size: 12px;
+            }
+
+            .logout-btn {
+                padding: 9px;
+                font-size: 12px;
+            }
+
+            .container {
+                width: calc(100% - 28px);
+            }
+
+            .hero {
+                margin-top: 18px;
+                min-height: auto;
+                padding: 27px 22px;
+                border-radius: 17px;
+            }
+
+            .hero h2 {
+                font-size: 30px;
+            }
+
+            .hero p {
+                font-size: 13px;
+            }
+
+            .hero-art {
+                display: none;
+            }
+
+            .perks {
+                grid-template-columns: 1fr;
+                gap: 10px;
+                margin: 16px 0 30px;
+            }
+
+            .perk {
+                padding: 12px;
+            }
+
+            .section-heading h2 {
+                font-size: 23px;
+            }
+
+            .menu-grid {
+                grid-template-columns: 1fr;
+                gap: 15px;
+            }
+
+            .food-card {
+                display: grid;
+                grid-template-columns: 110px minmax(0, 1fr);
+            }
+
+            .food-visual {
+                height: 100%;
+                min-height: 155px;
+                font-size: 48px;
+            }
+
+            .food-info {
+                padding: 15px;
+            }
+
+            .food-info h3 {
+                font-size: 16px;
+            }
+
+            .food-info p {
+                margin-bottom: 14px;
+            }
+
+            .food-price {
+                font-size: 17px;
+            }
+
+            .add-btn {
+                padding: 9px;
+                font-size: 12px;
+            }
+
+            .cart-items-card,
+            .cart-summary {
+                padding: 16px;
+            }
+
+            .cart-row {
+                gap: 8px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <header class="navbar">
+        <div class="nav-inner">
+            <h1 class="brand">🍔 Quick<span>Byte</span></h1>
+
+            <div class="nav-right">
+                <div class="welcome">
+                    Hey, <strong id="username">User</strong> 👋
+                </div>
+
+                <button class="logout-btn" onclick="logout()">
+                    Logout ↗
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="container">
+
+        <section class="hero">
+            <div class="hero-content">
+                <span class="eyebrow">YOUR DAILY FOOD FIX</span>
+
+                <h2>
+                    Good food.<br>
+                    <span>Good mood.</span>
+                </h2>
+
+                <p>
+                    Your cravings, your favourites, your way.
+                    Pick your food and let QuickByte handle the next step.
+                </p>
+            </div>
+
+            <div class="hero-art" aria-hidden="true">🍕</div>
+        </section>
+
+        <section class="perks">
+            <div class="perk">
+                <div class="perk-icon">🍽️</div>
+                <div>
+                    <strong>Your favourites</strong>
+                    <small>Pick from our available menu</small>
+                </div>
+            </div>
+
+            <div class="perk">
+                <div class="perk-icon">🛒</div>
+                <div>
+                    <strong>Easy ordering</strong>
+                    <small>Add items and manage quantities</small>
+                </div>
+            </div>
+
+            <div class="perk">
+                <div class="perk-icon">📍</div>
+                <div>
+                    <strong>Route tracking</strong>
+                    <small>Explore your delivery route</small>
+                </div>
+            </div>
+        </section>
+
+        <section id="menuSection">
+            <div class="section-heading">
+                <div>
+                    <h2>Explore the Menu 🍴</h2>
+                    <p>Something delicious is waiting for you.</p>
+                </div>
+            </div>
+
+            <div id="menu" class="menu-grid">
+                <div class="loading-card">Loading menu...</div>
+            </div>
+        </section>
+
+        <section class="cart-section" id="cartSection">
+            <div class="section-heading">
+                <div>
+                    <h2>Your Cart 🛒</h2>
+                    <p>Your picks, all in one place.</p>
+                </div>
+
+                <button class="browse-btn" onclick="loadMenu()">
+                    Refresh Menu
+                </button>
+            </div>
+
+            <div class="cart-layout">
+                <div class="cart-items-card">
+                    <h3>Cart Items</h3>
+                    <div id="cart">
+                        <p>Loading your cart...</p>
+                    </div>
+                </div>
+
+                <aside class="cart-summary">
+                    <h3>Order Summary</h3>
+
+                    <div class="summary-line">
+                        <span>Items</span>
+                        <strong id="summaryCount">0 items</strong>
+                    </div>
+
+                    <div class="summary-line total">
+                        <span>Total</span>
+                        <span id="summaryTotal">₹0</span>
+                    </div>
+
+                    <button
+                        id="checkoutButton"
+                        class="checkout-btn"
+                        onclick="proceedToCheckout()"
+                        disabled
+                    >
+                        Proceed to Checkout →
+                    </button>
+
+                    <button
+                        class="clear-btn"
+                        onclick="clearCart()"
+                    >
+                        Clear Cart
+                    </button>
+
+                    <p class="summary-note">
+                        Delivery address and payment details are collected
+                        at checkout.
+                    </p>
+                </aside>
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="site-footer">
+        <strong>QuickByte</strong> · Good food, made simple.<br>
+        College Food Delivery Project
+    </footer>
+
+    <script>
+        const API = "http://localhost:8000/api";
+
+        // LOGIN CHECK
+        const role = localStorage.getItem("role");
+        const username = localStorage.getItem("username");
+
+        if (role !== "user") {
+            window.location.href = "login.html";
+        }
+
+        document.getElementById("username").innerText = username || "User";
+
+        // SAFE HTML DISPLAY
+        function escapeHTML(value) {
+            return String(value ?? "").replace(/[&<>"']/g, character => ({
+                "&": "&amp;",
+                "<": "&lt;",
+                ">": "&gt;",
+                '"': "&quot;",
+                "'": "&#39;"
+            })[character]);
+        }
+
+        // FOOD VISUALS (decorative only)
+        function getFoodEmoji(name) {
+            const food = String(name || "").toLowerCase();
+
+            if (food.includes("burger")) return "🍔";
+            if (food.includes("pizza")) return "🍕";
+            if (food.includes("coke") || food.includes("drink")) return "🥤";
+            if (food.includes("sandwich")) return "🥪";
+            if (food.includes("fries")) return "🍟";
+            if (food.includes("cake")) return "🍰";
+            if (food.includes("coffee")) return "☕";
+            if (food.includes("ice cream")) return "🍨";
+            if (food.includes("pasta")) return "🍝";
+            if (food.includes("biryani")) return "🍛";
+
+            return "🍽️";
+        }
+
+        // LOAD MENU
+        async function loadMenu() {
+            const menuContainer = document.getElementById("menu");
+
+            menuContainer.innerHTML =
+                '<div class="loading-card">Loading delicious options...</div>';
+
+            try {
+                const response = await fetch(`${API}/menu`);
+
+                if (!response.ok) {
+                    throw new Error("Menu request failed");
+                }
+
+                const data = await response.json();
+                let html = "";
+
+                for (const food of (data.menu || [])) {
+                    const id = Number(food.id);
+                    const name = escapeHTML(food.name);
+                    const price = Number(food.price) || 0;
+                    const emoji = getFoodEmoji(food.name);
+
+                    html += `
+                        <article class="food-card">
+                            <div class="food-visual" aria-hidden="true">
+                                ${emoji}
+                            </div>
+
+                            <div class="food-info">
+                                <h3>${name}</h3>
+                                <p>Made for your next craving.</p>
+
+                                <div class="food-bottom">
+                                    <span class="food-price">₹${price}</span>
+
+                                    <button
+                                        class="add-btn"
+                                        onclick="addFood(${id})"
+                                    >
+                                        + Add
+                                    </button>
+                                </div>
+                            </div>
+                        </article>
+                    `;
+                }
+
+                menuContainer.innerHTML = html ||
+                    '<div class="loading-card">No food items available right now.</div>';
+
+            } catch (error) {
+                console.error(error);
+
+                menuContainer.innerHTML = `
+                    <div class="loading-card">
+                        Unable to load menu. Please check whether the backend is running.
+                    </div>
+                `;
+            }
+        }
+
+        // ADD FOOD
+        async function addFood(foodId) {
+            try {
+                const response = await fetch(`${API}/cart/add`, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({ foodId })
+                });
+
+                const data = await response.json();
+
+                if (!response.ok || data.success === false) {
+                    alert(data.message || "Unable to add item.");
+                    return;
+                }
+
+                await showCart();
+
+            } catch (error) {
+                console.error(error);
+                alert("Backend connection failed.");
+            }
+        }
+
+        // REMOVE ONE QUANTITY
+        async function removeFood(foodId) {
+            try {
+                const response = await fetch(`${API}/cart/remove`, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({ foodId })
+                });
+
+                const data = await response.json();
+
+                if (!response.ok || data.success === false) {
+                    alert(data.message || "Unable to remove item.");
+                    return;
+                }
+
+                await showCart();
+
+            } catch (error) {
+                console.error(error);
+                alert("Unable to update cart.");
+            }
+        }
+
+        // CLEAR CART
+        async function clearCart() {
+            if (!confirm("Are you sure you want to clear your cart?")) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API}/cart/clear`, {
+                    method: "POST"
+                });
+
+                const data = await response.json();
+
+                if (!response.ok || data.success === false) {
+                    alert(data.message || "Unable to clear cart.");
+                    return;
+                }
+
+                await showCart();
+
+            } catch (error) {
+                console.error(error);
+                alert("Unable to clear cart.");
+            }
+        }
+
+        // PROCEED TO CHECKOUT
+        async function proceedToCheckout() {
+            try {
+                const response = await fetch(`${API}/cart`);
+
+                if (!response.ok) {
+                    throw new Error("Could not fetch cart");
+                }
+
+                const data = await response.json();
+
+                if (!data.items || data.items.length === 0) {
+                    alert("Your cart is empty! Please add food first.");
+                    await showCart();
+                    return;
+                }
+
+                window.location.href = "checkout.html";
+
+            } catch (error) {
+                console.error(error);
+                alert("Unable to open checkout. Check the backend.");
+            }
+        }
+
+        // SHOW CART
+        async function showCart() {
+            const cartContainer = document.getElementById("cart");
+            const checkoutButton = document.getElementById("checkoutButton");
+
+            try {
+                const response = await fetch(`${API}/cart`);
+
+                if (!response.ok) {
+                    throw new Error("Cart request failed");
+                }
+
+                const data = await response.json();
+                const items = data.items || [];
+                const total = Number(data.total) || 0;
+
+                let itemCount = 0;
+
+                for (const item of items) {
+                    itemCount += Number(item.quantity) || 0;
+                }
+
+                document.getElementById("summaryCount").innerText =
+                    `${itemCount} ${itemCount === 1 ? "item" : "items"}`;
+
+                document.getElementById("summaryTotal").innerText =
+                    `₹${total}`;
+
+                checkoutButton.disabled = items.length === 0;
+
+                if (items.length === 0) {
+                    cartContainer.innerHTML = `
+                        <div class="empty-cart">
+                            <div class="empty-icon">🛍️</div>
+                            <h4>Your cart is waiting!</h4>
+                            <p>Add something tasty from the menu to get started.</p>
+                            <button
+                                class="browse-btn"
+                                onclick="document.getElementById('menuSection').scrollIntoView({behavior:'smooth'})"
+                            >
+                                Explore Menu
+                            </button>
+                        </div>
+                    `;
+                    return;
+                }
+
+                let html = "";
+
+                for (const item of items) {
+                    const foodId = Number(item.foodId);
+                    const quantity = Number(item.quantity) || 0;
+                    const price = Number(item.price) || 0;
+                    const itemTotal = price * quantity;
+                    const name = escapeHTML(item.name);
+
+                    html += `
+                        <div class="cart-row">
+                            <div>
+                                <p class="cart-item-name">${name}</p>
+                                <span class="cart-item-price">
+                                    ₹${price} each · Subtotal ₹${itemTotal}
+                                </span>
+                            </div>
+
+                            <div class="quantity-controls">
+                                <button
+                                    class="qty-btn"
+                                    aria-label="Remove one ${name}"
+                                    onclick="removeFood(${foodId})"
+                                >−</button>
+
+                                <span class="qty-number">${quantity}</span>
+
+                                <button
+                                    class="qty-btn"
+                                    aria-label="Add one ${name}"
+                                    onclick="addFood(${foodId})"
+                                >+</button>
+                            </div>
+                        </div>
+                    `;
+                }
+
+                cartContainer.innerHTML = html;
+
+            } catch (error) {
+                console.error(error);
+
+                cartContainer.innerHTML = `
+                    <p>
+                        Unable to load cart. Please check the backend.
+                    </p>
+                `;
+
+                checkoutButton.disabled = true;
+            }
+        }
+
+        // LOGOUT
+        function logout() {
+            localStorage.removeItem("role");
+            localStorage.removeItem("username");
+
+            window.location.href = "login.html";
+        }
+
+        // START
+        loadMenu();
+        showCart();
+    </script>
+
+</body>
+</html>

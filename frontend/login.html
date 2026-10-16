@@ -1,0 +1,204 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QuickByte | Login</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            padding: 24px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: Arial, sans-serif;
+            background: #f5f7fb;
+            color: #222;
+        }
+
+        .login-card {
+            width: 100%;
+            max-width: 420px;
+            padding: 35px;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 5px 25px #00000012;
+        }
+
+        .brand {
+            margin: 0;
+            color: #087f5b;
+            font-size: 32px;
+            text-align: center;
+        }
+
+        .subtitle {
+            margin: 10px 0 28px;
+            text-align: center;
+            color: #666;
+            font-size: 14px;
+        }
+
+        h2 {
+            margin-bottom: 22px;
+            text-align: center;
+        }
+
+        label {
+            display: block;
+            margin: 16px 0 7px;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        input {
+            width: 100%;
+            padding: 13px;
+            border: 1px solid #d6d9df;
+            border-radius: 8px;
+            font-size: 15px;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        input:focus {
+            border-color: #087f5b;
+        }
+
+        button {
+            width: 100%;
+            margin-top: 24px;
+            padding: 13px;
+            border: none;
+            border-radius: 8px;
+            background: #087f5b;
+            color: white;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        button:hover {
+            background: #066849;
+        }
+
+        #message {
+            margin: 18px 0 0;
+            text-align: center;
+            color: #b42318;
+            font-size: 14px;
+        }
+
+        .footer {
+            margin-top: 25px;
+            text-align: center;
+            color: #888;
+            font-size: 12px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="login-card">
+
+        <h1 class="brand">🍔 QuickByte</h1>
+        <p class="subtitle">Good food. Quick delivery.</p>
+
+        <h2>🔐 Welcome Back</h2>
+
+        <form id="loginForm">
+
+            <label for="username">Username</label>
+            <input
+                type="text"
+                id="username"
+                placeholder="Enter username"
+                autocomplete="username"
+                required
+            >
+
+            <label for="password">Password</label>
+            <input
+                type="password"
+                id="password"
+                placeholder="Enter password"
+                autocomplete="current-password"
+                required
+            >
+
+            <button type="submit" id="loginButton">
+                Login →
+            </button>
+
+        </form>
+
+        <p id="message" role="status"></p>
+
+        <div class="footer">
+            QuickByte Food Delivery System
+        </div>
+
+    </div>
+
+    <script>
+        const loginForm = document.getElementById("loginForm");
+
+        loginForm.addEventListener("submit", async function(event) {
+            event.preventDefault();
+
+            const username = document.getElementById("username").value;
+            const password = document.getElementById("password").value;
+            const message = document.getElementById("message");
+            const loginButton = document.getElementById("loginButton");
+
+            message.innerText = "";
+            loginButton.disabled = true;
+            loginButton.innerText = "Logging in...";
+
+            try {
+                const response = await fetch("http://localhost:8000/api/login", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        username: username,
+                        password: password
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    localStorage.setItem("username", data.username);
+                    localStorage.setItem("role", data.role);
+
+                    if (data.role === "admin") {
+                        window.location.href = "admin.html";
+                    } else {
+                        window.location.href = "index.html";
+                    }
+                } else {
+                    message.innerText = data.message || "Invalid username or password.";
+                }
+            } catch (error) {
+                console.error(error);
+                message.innerText = "Unable to connect to server.";
+            } finally {
+                loginButton.disabled = false;
+                loginButton.innerText = "Login →";
+            }
+        });
+    </script>
+
+</body>
+</html>

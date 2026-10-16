@@ -1,0 +1,1044 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QuickByte | Order Tracking</title>
+
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+        }
+
+        :root {
+            --green: #087f5b;
+            --dark: #12372b;
+            --light: #f4f7f5;
+            --muted: #748078;
+            --border: #e6ece8;
+        }
+
+        body {
+            background: var(--light);
+            color: #17231c;
+        }
+
+        header {
+            background: white;
+            border-bottom: 1px solid var(--border);
+            padding: 17px 6%;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 14px;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .brand-icon {
+            width: 43px;
+            height: 43px;
+            display: grid;
+            place-items: center;
+            background: #e5f6ed;
+            border-radius: 14px;
+            font-size: 25px;
+        }
+
+        .brand h1 {
+            font-size: 23px;
+            color: var(--dark);
+            letter-spacing: -0.7px;
+        }
+
+        .brand h1 span {
+            color: var(--green);
+        }
+
+        .brand p {
+            font-size: 11px;
+            color: var(--muted);
+            margin-top: 3px;
+        }
+
+        .back-link {
+            text-decoration: none;
+            color: var(--green);
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        main {
+            max-width: 1100px;
+            margin: 30px auto;
+            padding: 0 18px 35px;
+        }
+
+        .welcome {
+            margin-bottom: 22px;
+        }
+
+        .eyebrow {
+            color: var(--green);
+            font-size: 12px;
+            font-weight: bold;
+            letter-spacing: 1.4px;
+            text-transform: uppercase;
+            margin-bottom: 9px;
+        }
+
+        .welcome h2 {
+            font-size: clamp(25px, 4vw, 34px);
+            color: var(--dark);
+            margin-bottom: 8px;
+        }
+
+        .welcome p {
+            color: var(--muted);
+            line-height: 1.6;
+            font-size: 14px;
+        }
+
+        .order-card {
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 18px;
+            padding: 22px;
+            margin-bottom: 20px;
+            box-shadow: 0 5px 22px #183b2910;
+        }
+
+        .order-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .order-top h3 {
+            color: var(--dark);
+            font-size: 17px;
+            margin-bottom: 6px;
+        }
+
+        .order-number {
+            color: var(--muted);
+            font-size: 13px;
+        }
+
+        .live-badge {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            background: #e8f8ef;
+            color: var(--green);
+            padding: 9px 12px;
+            border-radius: 30px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .pulse {
+            width: 8px;
+            height: 8px;
+            background: #13a66e;
+            border-radius: 50%;
+            box-shadow: 0 0 0 4px #13a66e20;
+        }
+
+        .map-layout {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) 285px;
+            gap: 18px;
+            align-items: stretch;
+        }
+
+        .map-card {
+            position: relative;
+            min-width: 0;
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 18px;
+            overflow: hidden;
+            box-shadow: 0 5px 22px #183b2910;
+        }
+
+        .map-heading {
+            padding: 18px 19px 14px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .map-heading h3 {
+            font-size: 16px;
+            color: var(--dark);
+        }
+
+        .map-heading p {
+            font-size: 12px;
+            color: var(--muted);
+            margin-top: 5px;
+        }
+
+        .map-tag {
+            background: #f0f8f3;
+            color: var(--green);
+            border-radius: 8px;
+            padding: 8px 10px;
+            font-size: 11px;
+            font-weight: bold;
+            white-space: nowrap;
+        }
+
+        #map {
+            height: 430px;
+            width: 100%;
+            z-index: 1;
+            background: #eaf0e9;
+        }
+
+        .map-legend {
+            display: flex;
+            gap: 17px;
+            flex-wrap: wrap;
+            padding: 14px 18px;
+            font-size: 12px;
+            color: #526157;
+            border-top: 1px solid var(--border);
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+        }
+
+        .legend-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+
+        .restaurant-dot {
+            background: #f59f00;
+        }
+
+        .destination-dot {
+            background: var(--green);
+        }
+
+        .route-dot {
+            width: 22px;
+            height: 0;
+            border-top: 3px dashed var(--green);
+        }
+
+        .side-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .delivery-card,
+        .destination-card {
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 18px;
+            padding: 21px;
+            box-shadow: 0 5px 22px #183b2910;
+        }
+
+        .delivery-emoji {
+            width: 60px;
+            height: 60px;
+            display: grid;
+            place-items: center;
+            background: #e8f7ee;
+            border-radius: 18px;
+            font-size: 32px;
+            margin-bottom: 17px;
+        }
+
+        .delivery-card h3 {
+            font-size: 19px;
+            color: var(--dark);
+            line-height: 1.4;
+            margin-bottom: 8px;
+        }
+
+        .delivery-card > p {
+            color: var(--muted);
+            font-size: 13px;
+            line-height: 1.6;
+        }
+
+        .eta-box {
+            background: #f0f8f3;
+            padding: 15px;
+            border-radius: 12px;
+            margin-top: 18px;
+        }
+
+        .eta-box p {
+            color: var(--muted);
+            font-size: 12px;
+            margin-bottom: 5px;
+        }
+
+        .eta-box strong {
+            color: var(--green);
+            font-size: 25px;
+        }
+
+        .eta-box small {
+            display: block;
+            color: var(--muted);
+            font-size: 11px;
+            margin-top: 5px;
+            line-height: 1.5;
+        }
+
+        .destination-card h3 {
+            color: var(--dark);
+            font-size: 15px;
+            margin-bottom: 17px;
+        }
+
+        .location-row {
+            display: flex;
+            gap: 12px;
+            position: relative;
+        }
+
+        .location-track {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 16px;
+            flex-shrink: 0;
+        }
+
+        .location-circle {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            border: 3px solid #cdebd9;
+            background: var(--green);
+            margin-top: 3px;
+            z-index: 1;
+        }
+
+        .location-line {
+            height: 35px;
+            border-left: 2px dashed #cad8ce;
+        }
+
+        .location-pin {
+            font-size: 17px;
+            line-height: 18px;
+        }
+
+        .location-info {
+            min-width: 0;
+            padding-bottom: 20px;
+        }
+
+        .location-info:last-child {
+            padding-bottom: 0;
+        }
+
+        .location-info strong {
+            font-size: 13px;
+            color: var(--dark);
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .location-info span {
+            font-size: 12px;
+            color: var(--muted);
+            line-height: 1.5;
+            overflow-wrap: anywhere;
+        }
+
+        .progress-card {
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 18px;
+            padding: 23px;
+            margin-top: 20px;
+            box-shadow: 0 5px 22px #183b2910;
+        }
+
+        .progress-card h3 {
+            color: var(--dark);
+            font-size: 18px;
+            margin-bottom: 6px;
+        }
+
+        .progress-subtitle {
+            color: var(--muted);
+            font-size: 13px;
+            line-height: 1.6;
+        }
+
+        .steps {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            margin-top: 26px;
+        }
+
+        .step {
+            text-align: center;
+            position: relative;
+            padding: 0 5px;
+        }
+
+        .step:not(:last-child)::after {
+            content: "";
+            position: absolute;
+            height: 3px;
+            background: #e2e9e4;
+            width: calc(100% - 43px);
+            top: 18px;
+            left: calc(50% + 22px);
+        }
+
+        .step.done:not(:last-child)::after {
+            background: #8fd3ad;
+        }
+
+        .step-icon {
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            background: #edf1ee;
+            display: grid;
+            place-items: center;
+            margin: 0 auto 10px;
+            font-size: 17px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .step.done .step-icon {
+            background: #dff5e8;
+        }
+
+        .step.active .step-icon {
+            background: var(--green);
+            color: white;
+            box-shadow: 0 0 0 5px #087f5b19;
+        }
+
+        .step strong {
+            display: block;
+            color: #7b887f;
+            font-size: 12px;
+            line-height: 1.5;
+        }
+
+        .step.done strong,
+        .step.active strong {
+            color: var(--green);
+        }
+
+        .step small {
+            display: block;
+            color: #9aa39d;
+            font-size: 10px;
+            margin-top: 5px;
+            line-height: 1.4;
+        }
+
+        .message {
+            margin-top: 18px;
+            background: #f0f8f3;
+            color: #286449;
+            border-radius: 10px;
+            padding: 13px 15px;
+            font-size: 13px;
+            line-height: 1.6;
+            overflow-wrap: anywhere;
+        }
+
+        .error-message {
+            background: #fff0ed;
+            color: #a53c2b;
+        }
+
+        .footer-note {
+            color: #7c8880;
+            text-align: center;
+            font-size: 11px;
+            line-height: 1.6;
+            margin-top: 19px;
+        }
+
+        .food-marker {
+            background: transparent;
+            border: none;
+        }
+
+        .marker-bubble {
+            width: 42px;
+            height: 42px;
+            border: 3px solid white;
+            border-radius: 50% 50% 50% 8px;
+            transform: rotate(-45deg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 12px #0003;
+        }
+
+        .marker-bubble span {
+            transform: rotate(45deg);
+            font-size: 21px;
+        }
+
+        .restaurant-marker .marker-bubble {
+            background: #f59f00;
+        }
+
+        .home-marker .marker-bubble {
+            background: var(--green);
+        }
+
+        .rider-marker {
+            background: transparent;
+            border: none;
+        }
+
+        .rider-bubble {
+            width: 45px;
+            height: 45px;
+            display: grid;
+            place-items: center;
+            border-radius: 50%;
+            background: white;
+            border: 3px solid var(--green);
+            box-shadow: 0 4px 13px #0003;
+            font-size: 25px;
+        }
+
+        .leaflet-popup-content-wrapper {
+            border-radius: 12px;
+        }
+
+        .leaflet-popup-content {
+            line-height: 1.6;
+        }
+
+        @media (max-width: 800px) {
+            .map-layout {
+                grid-template-columns: 1fr;
+            }
+
+            .side-panel {
+                display: grid;
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+
+            .delivery-card,
+            .destination-card {
+                padding: 18px;
+            }
+
+            #map {
+                height: 390px;
+            }
+        }
+
+        @media (max-width: 520px) {
+            header {
+                padding: 14px 17px;
+            }
+
+            .brand h1 {
+                font-size: 20px;
+            }
+
+            .brand p {
+                font-size: 10px;
+            }
+
+            .back-link {
+                font-size: 12px;
+            }
+
+            main {
+                margin-top: 23px;
+                padding: 0 12px 25px;
+            }
+
+            .order-card,
+            .progress-card {
+                padding: 17px;
+            }
+
+            .side-panel {
+                grid-template-columns: 1fr;
+            }
+
+            #map {
+                height: 340px;
+            }
+
+            .steps {
+                margin-top: 22px;
+            }
+
+            .step {
+                padding: 0 2px;
+            }
+
+            .step:not(:last-child)::after {
+                width: calc(100% - 31px);
+                left: calc(50% + 16px);
+                top: 15px;
+            }
+
+            .step-icon {
+                width: 32px;
+                height: 32px;
+                font-size: 14px;
+                margin-bottom: 8px;
+            }
+
+            .step strong {
+                font-size: 10px;
+            }
+
+            .step small {
+                font-size: 9px;
+            }
+
+            .map-heading {
+                padding: 15px;
+            }
+
+            .map-tag {
+                font-size: 10px;
+                padding: 7px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <div class="brand">
+            <div class="brand-icon">🍔</div>
+            <div>
+                <h1>Quick<span>Byte</span></h1>
+                <p>GOOD FOOD. QUICK DELIVERY.</p>
+            </div>
+        </div>
+
+        <a class="back-link" href="index.html">← Back to QuickByte</a>
+    </header>
+
+    <main>
+        <section class="welcome">
+            <div class="eyebrow">ORDER TRACKING</div>
+            <h2>Your food is on its way! 🍟</h2>
+            <p>Follow your order from the restaurant to your doorstep.</p>
+        </section>
+
+        <section class="order-card">
+            <div class="order-top">
+                <div>
+                    <h3>Order tracking details</h3>
+                    <p class="order-number">Order ID: <strong id="orderId">Loading...</strong></p>
+                </div>
+
+                <div class="live-badge">
+                    <span class="pulse"></span>
+                    ROUTE READY
+                </div>
+            </div>
+        </section>
+
+        <div class="map-layout">
+            <section class="map-card">
+                <div class="map-heading">
+                    <div>
+                        <h3>🗺️ Delivery route</h3>
+                        <p>Restaurant → Your destination</p>
+                    </div>
+                    <span class="map-tag">DIJKSTRA ROUTE</span>
+                </div>
+
+                <div id="map"></div>
+
+                <div class="map-legend">
+                    <div class="legend-item">
+                        <span class="legend-dot restaurant-dot"></span>
+                        Restaurant
+                    </div>
+                    <div class="legend-item">
+                        <span class="legend-dot destination-dot"></span>
+                        Destination
+                    </div>
+                    <div class="legend-item">
+                        <span class="route-dot"></span>
+                        Planned route
+                    </div>
+                </div>
+            </section>
+
+            <aside class="side-panel">
+                <section class="delivery-card">
+                    <div class="delivery-emoji">🛵</div>
+                    <h3 id="deliveryTitle">Your delivery route is being prepared</h3>
+                    <p id="deliveryDescription">
+                        Loading your order's route details...
+                    </p>
+
+                    <div class="eta-box">
+                        <p>Estimated delivery time</p>
+                        <strong id="eta">-- min</strong>
+                        <small id="etaNote">
+                            Demo estimate, not live rider tracking
+                        </small>
+                    </div>
+                </section>
+
+                <section class="destination-card">
+                    <h3>📍 Delivery journey</h3>
+
+                    <div class="location-row">
+                        <div class="location-track">
+                            <span class="location-circle"></span>
+                            <span class="location-line"></span>
+                        </div>
+                        <div class="location-info">
+                            <strong>Pickup point</strong>
+                            <span id="restaurantName">Food Corner</span>
+                        </div>
+                    </div>
+
+                    <div class="location-row">
+                        <div class="location-track">
+                            <span class="location-pin">🏠</span>
+                        </div>
+                        <div class="location-info">
+                            <strong>Your destination</strong>
+                            <span id="destinationName">Fetching destination...</span>
+                        </div>
+                    </div>
+
+                    <div class="message" id="distanceMessage">
+                        Calculating the shortest route...
+                    </div>
+                </section>
+            </aside>
+        </div>
+
+        <section class="progress-card">
+            <h3>Order progress</h3>
+            <p class="progress-subtitle">
+                Here's where your order stands in the delivery process.
+            </p>
+
+            <div class="steps">
+                <div class="step done">
+                    <div class="step-icon">✓</div>
+                    <strong>Order placed</strong>
+                    <small>Confirmed</small>
+                </div>
+
+                <div class="step active" id="stepPreparing">
+                    <div class="step-icon">👨‍🍳</div>
+                    <strong>Preparing</strong>
+                    <small>Demo status</small>
+                </div>
+
+                <div class="step" id="stepDelivery">
+                    <div class="step-icon">🛵</div>
+                    <strong>On the way</strong>
+                    <small>Pending</small>
+                </div>
+
+                <div class="step" id="stepDelivered">
+                    <div class="step-icon">🏠</div>
+                    <strong>Delivered</strong>
+                    <small>Pending</small>
+                </div>
+            </div>
+
+            <p class="message" id="status" role="status" aria-live="polite">
+                Connecting to QuickByte route service...
+            </p>
+        </section>
+
+        <p class="footer-note">
+            QuickByte student project · Route calculated using Dijkstra's algorithm.<br>
+            Map route is illustrative. Rider GPS and live delivery updates are not connected.
+        </p>
+    </main>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+    <script>
+        const API = "http://localhost:8000";
+
+        const params = new URLSearchParams(window.location.search);
+        const destinationId = params.get("destination");
+        const orderId = params.get("orderId");
+
+        const map = L.map("map");
+
+        L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+            attribution: '&copy; OpenStreetMap contributors',
+            maxZoom: 19
+        }).addTo(map);
+
+        map.setView([30.3256, 78.0437], 12);
+
+        let routeLine = null;
+        let routeMarkers = [];
+        let riderMarker = null;
+
+        const destinationNames = {
+            "1": "Clock Tower",
+            "2": "ISBT",
+            "3": "Pacific Mall",
+            "4": "Graphic Era",
+            "5": "Prem Nagar"
+        };
+
+        function escapeHTML(value) {
+            return String(value ?? "").replace(/[&<>"']/g, character => ({
+                "&": "&amp;",
+                "<": "&lt;",
+                ">": "&gt;",
+                '"': "&quot;",
+                "'": "&#39;"
+            })[character]);
+        }
+
+        function showError(message) {
+            const status = document.getElementById("status");
+            status.textContent = message;
+            status.classList.add("error-message");
+
+            document.getElementById("deliveryTitle").textContent =
+                "Tracking details unavailable";
+
+            document.getElementById("deliveryDescription").textContent =
+                "Return to checkout or home and open tracking from your order confirmation.";
+        }
+
+        function createMarkerIcon(emoji, className) {
+            return L.divIcon({
+                className: "food-marker " + className,
+                html: `<div class="marker-bubble"><span>${emoji}</span></div>`,
+                iconSize: [44, 48],
+                iconAnchor: [22, 44],
+                popupAnchor: [0, -42]
+            });
+        }
+
+        function createRiderIcon() {
+            return L.divIcon({
+                className: "rider-marker",
+                html: '<div class="rider-bubble">🛵</div>',
+                iconSize: [45, 45],
+                iconAnchor: [22, 22]
+            });
+        }
+
+        async function loadRoute() {
+            document.getElementById("orderId").textContent =
+                orderId || "Demo order";
+
+            // Destination must come from checkout's tracking URL.
+            if (!destinationId || !destinationNames[destinationId]) {
+                showError(
+                    "No valid delivery destination was received. Please place an order and open tracking from the order confirmation."
+                );
+
+                document.getElementById("destinationName").textContent =
+                    "Destination not received";
+
+                document.getElementById("distanceMessage").textContent =
+                    "No route can be calculated until checkout provides a destination.";
+
+                return;
+            }
+
+            document.getElementById("destinationName").textContent =
+                destinationNames[destinationId];
+
+            try {
+                const response = await fetch(
+                    `${API}/api/route?destination=${encodeURIComponent(destinationId)}`
+                );
+
+                const data = await response.json();
+
+                if (!response.ok || !data.success) {
+                    throw new Error(data.message || "Route calculation failed.");
+                }
+
+                if (!Array.isArray(data.route) || data.route.length === 0) {
+                    throw new Error("No route nodes received from the backend.");
+                }
+
+                if (routeLine) map.removeLayer(routeLine);
+
+                routeMarkers.forEach(marker => map.removeLayer(marker));
+                routeMarkers = [];
+
+                if (riderMarker) {
+                    map.removeLayer(riderMarker);
+                    riderMarker = null;
+                }
+
+                const coordinates = data.route.map(node => [
+                    Number(node.latitude),
+                    Number(node.longitude)
+                ]);
+
+                if (coordinates.some(point =>
+                    !Number.isFinite(point[0]) || !Number.isFinite(point[1])
+                )) {
+                    throw new Error("The route contains invalid coordinates.");
+                }
+
+                const start = data.route[0];
+                const end = data.route[data.route.length - 1];
+
+                document.getElementById("restaurantName").textContent =
+                    start.name || "Food Corner";
+
+                document.getElementById("destinationName").textContent =
+                    end.name || destinationNames[destinationId];
+
+                // Dashed route makes this look like a delivery journey.
+                routeLine = L.polyline(coordinates, {
+                    color: "#087f5b",
+                    weight: 5,
+                    opacity: 0.9,
+                    dashArray: "10 10",
+                    lineCap: "round"
+                }).addTo(map);
+
+                // Restaurant pickup marker.
+                const restaurantMarker = L.marker(coordinates[0], {
+                    icon: createMarkerIcon("🍔", "restaurant-marker"),
+                    zIndexOffset: 500
+                }).addTo(map);
+
+                restaurantMarker.bindPopup(
+                    `<b>🍔 Restaurant / Pickup</b><br>${escapeHTML(start.name || "Food Corner")}`
+                );
+
+                routeMarkers.push(restaurantMarker);
+
+                // Delivery destination marker.
+                const homeMarker = L.marker(coordinates[coordinates.length - 1], {
+                    icon: createMarkerIcon("🏠", "home-marker"),
+                    zIndexOffset: 500
+                }).addTo(map);
+
+                homeMarker.bindPopup(
+                    `<b>🏠 Delivery destination</b><br>${escapeHTML(end.name || destinationNames[destinationId])}`
+                );
+
+                routeMarkers.push(homeMarker);
+
+                // Intermediate graph nodes.
+                data.route.slice(1, -1).forEach(node => {
+                    const marker = L.circleMarker(
+                        [Number(node.latitude), Number(node.longitude)],
+                        {
+                            radius: 6,
+                            color: "#ffffff",
+                            weight: 2,
+                            fillColor: "#087f5b",
+                            fillOpacity: 1
+                        }
+                    ).addTo(map);
+
+                    marker.bindPopup(
+                        `<b>Route stop</b><br>${escapeHTML(node.name)}`
+                    );
+
+                    routeMarkers.push(marker);
+                });
+
+                // Fit map to the actual returned route.
+                map.fitBounds(routeLine.getBounds(), {
+                    padding: [45, 45],
+                    maxZoom: 15
+                });
+
+                const distance = Number(data.distanceKm);
+                const validDistance = Number.isFinite(distance) ? distance : 0;
+
+                // Illustrative ETA: 20 km/h + 15 min preparation.
+                const etaMinutes = Math.max(
+                    15,
+                    Math.round((validDistance / 20) * 60 + 15)
+                );
+
+                document.getElementById("eta").textContent =
+                    `${etaMinutes} min`;
+
+                document.getElementById("distanceMessage").textContent =
+                    `Shortest graph distance: ${validDistance} km`;
+
+                document.getElementById("deliveryTitle").textContent =
+                    "Your food journey is mapped!";
+
+                document.getElementById("deliveryDescription").textContent =
+                    `Your route starts at ${start.name || "Food Corner"} and ends at ${end.name || destinationNames[destinationId]}.`;
+
+                document.getElementById("status").textContent =
+                    "Route calculated successfully using the C-based Dijkstra algorithm. Order progress shown here is a demo.";
+
+                // This is a visual demo marker, NOT a real rider location.
+                if (coordinates.length >= 2) {
+                    const mid = Math.floor((coordinates.length - 1) / 2);
+                    riderMarker = L.marker(coordinates[mid], {
+                        icon: createRiderIcon(),
+                        zIndexOffset: 1000
+                    }).addTo(map);
+
+                    riderMarker.bindPopup(
+                        "<b>🛵 Delivery route preview</b><br>Illustrative marker — not live rider GPS."
+                    );
+                }
+
+                const status = document.getElementById("status");
+                status.classList.remove("error-message");
+
+            } catch (error) {
+                console.error("QuickByte tracking error:", error);
+                showError(
+                    "Unable to load your route. Make sure the backend is running on port 8000. " +
+                    error.message
+                );
+            }
+        }
+
+        loadRoute();
+    </script>
+</body>
+</html>

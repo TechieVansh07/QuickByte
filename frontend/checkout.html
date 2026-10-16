@@ -1,0 +1,611 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QuickByte | Checkout</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 850px;
+            margin: 25px auto;
+            padding: 20px;
+            background: #f5f7fb;
+            color: #222;
+        }
+
+        h1, h2 {
+            color: #222;
+        }
+
+        .card {
+            background: white;
+            padding: 22px;
+            margin: 18px 0;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px #00000012;
+        }
+
+        label {
+            display: block;
+            margin-top: 15px;
+            margin-bottom: 6px;
+            font-weight: bold;
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ccc;
+            border-radius: 7px;
+            font-size: 15px;
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 90px;
+        }
+
+        button, .action-link {
+            display: inline-block;
+            padding: 12px 18px;
+            margin-top: 15px;
+            border: none;
+            border-radius: 7px;
+            background: #087f5b;
+            color: white;
+            font-size: 15px;
+            cursor: pointer;
+            text-decoration: none;
+        }
+
+        button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .secondary {
+            background: #555;
+        }
+
+        .danger {
+            color: #b42318;
+        }
+
+        .success {
+            color: #087f5b;
+        }
+
+        .muted {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .food-row {
+            display: flex;
+            justify-content: space-between;
+            gap: 15px;
+            padding: 9px 0;
+            border-bottom: 1px solid #eee;
+        }
+
+        .total {
+            font-size: 22px;
+            font-weight: bold;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        #status {
+            white-space: pre-line;
+            margin-top: 15px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <h1>🍔 QuickByte Checkout</h1>
+    <p>Almost there! Confirm your delivery details below.</p>
+
+    <!-- CUSTOMER DETAILS -->
+    <section class="card" id="checkoutSection">
+        <h2>📍 Delivery Details</h2>
+
+        <form id="checkoutForm">
+
+            <label for="customerName">Full Name</label>
+            <input
+                type="text"
+                id="customerName"
+                required
+                maxlength="100"
+                placeholder="Enter your full name"
+            >
+
+            <label for="address">Complete Delivery Address</label>
+            <textarea
+                id="address"
+                required
+                maxlength="500"
+                placeholder="Hostel/building, room number, street, landmark"
+            ></textarea>
+
+            <label for="city">City</label>
+            <input
+                type="text"
+                id="city"
+                value="Dehradun"
+                required
+                maxlength="100"
+            >
+
+            <label for="pincode">PIN Code</label>
+            <input
+                type="text"
+                id="pincode"
+                inputmode="numeric"
+                pattern="[0-9]{6}"
+                maxlength="6"
+                required
+                placeholder="6-digit PIN code"
+            >
+
+            <label for="destination">Select Delivery Area</label>
+            <select id="destination" required>
+                <option value="">-- Select your area --</option>
+                <option value="1">Clock Tower</option>
+                <option value="2">ISBT</option>
+                <option value="3">Pacific Mall</option>
+                <option value="4">Graphic Era</option>
+                <option value="5">Prem Nagar</option>
+            </select>
+
+            <p class="muted">
+                The selected area determines the destination node
+                used by our Dijkstra route algorithm. Enter your
+                complete address above for delivery details.
+            </p>
+
+            <label for="paymentMethod">Payment Method</label>
+            <select id="paymentMethod" required>
+                <option value="COD">Cash on Delivery</option>
+                <option value="UPI">UPI (Demo Only)</option>
+                <option value="Card">Card (Demo Only)</option>
+            </select>
+
+            <p class="muted">
+                UPI and Card are demonstration options only.
+                No real payment will be processed.
+            </p>
+
+        </form>
+    </section>
+
+    <!-- CART SUMMARY -->
+    <section class="card" id="summarySection">
+        <h2>🛒 Order Summary</h2>
+
+        <div id="cartItems">Loading cart...</div>
+
+        <p class="total" id="cartTotal">Total: ₹0</p>
+    </section>
+
+    <!-- ROUTE DETAILS -->
+    <section class="card">
+        <h2>🗺️ Delivery Route</h2>
+
+        <button type="button" class="secondary" id="checkRouteButton">
+            Check Shortest Route
+        </button>
+
+        <div id="routeResult">
+            <p class="muted">
+                Select a delivery area and check the route.
+            </p>
+        </div>
+    </section>
+
+    <!-- ORDER ACTIONS -->
+    <section class="card" id="actionSection">
+        <button type="button" id="placeOrderButton">
+            Confirm & Place Order
+        </button>
+
+        <button
+            type="button"
+            class="secondary"
+            onclick="window.location.href='index.html'"
+        >
+            ← Back to Menu
+        </button>
+
+        <div id="status"></div>
+    </section>
+
+    <!-- ORDER CONFIRMATION -->
+    <section class="card hidden" id="confirmationSection">
+        <h2 class="success">✅ Order Placed Successfully!</h2>
+
+        <div id="confirmationDetails"></div>
+
+        <button type="button" id="trackOrderButton">
+            🗺️ Open Tracking Page
+        </button>
+
+        <button
+            type="button"
+            class="secondary"
+            onclick="window.location.href='index.html'"
+        >
+            Back to Menu
+        </button>
+    </section>
+
+    <script>
+        const API = "http://localhost:8000/api";
+
+        const role = localStorage.getItem("role");
+        const username = localStorage.getItem("username");
+
+        if (role !== "user") {
+            window.location.href = "login.html";
+        }
+
+        let cartData = null;
+        let routeData = null;
+        let submitting = false;
+        let orderPlaced = false;
+
+        const form = document.getElementById("checkoutForm");
+        const destinationSelect = document.getElementById("destination");
+        const routeResult = document.getElementById("routeResult");
+        const statusBox = document.getElementById("status");
+        const placeOrderButton = document.getElementById("placeOrderButton");
+        const checkRouteButton = document.getElementById("checkRouteButton");
+
+        // LOAD CART
+        async function loadCart() {
+            try {
+                const response = await fetch(`${API}/cart`);
+
+                if (!response.ok) {
+                    throw new Error("Cart request failed");
+                }
+
+                cartData = await response.json();
+
+                renderCart();
+
+                if (!cartData.items || cartData.items.length === 0) {
+                    placeOrderButton.disabled = true;
+                    setStatus("Your cart is empty. Please add food first.", true);
+                } else {
+                    placeOrderButton.disabled = false;
+                    setStatus("");
+                }
+
+            } catch (error) {
+                console.error("Cart error:", error);
+
+                document.getElementById("cartItems").innerText =
+                    "Unable to load cart. Please check the backend.";
+
+                placeOrderButton.disabled = true;
+            }
+        }
+
+        function renderCart() {
+            const container = document.getElementById("cartItems");
+
+            if (!cartData || !cartData.items || cartData.items.length === 0) {
+                container.innerHTML = "<p>Your cart is empty.</p>";
+                document.getElementById("cartTotal").innerText = "Total: ₹0";
+                return;
+            }
+
+            let html = "";
+
+            for (const item of cartData.items) {
+                const name = escapeHTML(item.name || "Food item");
+                const quantity = Number(item.quantity) || 0;
+                const price = Number(item.price) || 0;
+
+                html += `
+                    <div class="food-row">
+                        <span>${name} × ${quantity}</span>
+                        <strong>₹${price * quantity}</strong>
+                    </div>
+                `;
+            }
+
+            container.innerHTML = html;
+
+            document.getElementById("cartTotal").innerText =
+                `Total: ₹${Number(cartData.total) || 0}`;
+        }
+
+        // FETCH ROUTE USING EXISTING DIJKSTRA API
+        async function checkRoute() {
+            const destinationId = destinationSelect.value;
+
+            if (!destinationId) {
+                setStatus("Please select a delivery area first.", true);
+                return false;
+            }
+
+            routeData = null;
+            routeResult.innerHTML = "<p>Calculating shortest route...</p>";
+            checkRouteButton.disabled = true;
+
+            try {
+                const response = await fetch(
+                    `${API}/route?destination=${encodeURIComponent(destinationId)}`
+                );
+
+                const data = await response.json();
+
+                if (!response.ok || data.success !== true) {
+                    throw new Error(data.message || "Route calculation failed");
+                }
+
+                routeData = data;
+
+                const routeNames = (data.route || [])
+                    .map(node => escapeHTML(node.name))
+                    .join(" → ");
+
+                const distance = Number(data.distanceKm);
+
+                if (!Number.isFinite(distance)) {
+                    throw new Error("Invalid distance returned by route API");
+                }
+
+                // DEMO ETA: estimated travel at 20 km/h + 15 min preparation.
+                // This is not live traffic or a real road ETA.
+                const travelMinutes = Math.ceil((distance / 20) * 60);
+                const prepMinutes = 15;
+                const etaMinutes = travelMinutes + prepMinutes;
+
+                routeData.etaMinutes = etaMinutes;
+
+                routeResult.innerHTML = `
+                    <p class="success"><strong>Shortest route found!</strong></p>
+                    <p><strong>Destination:</strong>
+                        ${escapeHTML(destinationSelect.options[destinationSelect.selectedIndex].text)}
+                    </p>
+                    <p><strong>Route:</strong> ${routeNames || "Route returned by graph"}</p>
+                    <p><strong>Graph distance:</strong> ${distance} km</p>
+                    <p><strong>Estimated delivery time:</strong> About ${etaMinutes} minutes</p>
+                    <p class="muted">
+                        ETA is a demo estimate using 20 km/h average speed
+                        plus 15 minutes preparation. It does not use live
+                        traffic or verified road distances.
+                    </p>
+                `;
+
+                setStatus("");
+                return true;
+
+            } catch (error) {
+                console.error("Route error:", error);
+
+                routeData = null;
+
+                routeResult.innerHTML = `
+                    <p class="danger">
+                        Unable to calculate route. Check that the backend
+                        and /api/route endpoint are running.
+                    </p>
+                `;
+
+                setStatus("Route calculation failed. Please try again.", true);
+                return false;
+
+            } finally {
+                checkRouteButton.disabled = false;
+            }
+        }
+
+        // IF AREA CHANGES, OLD ROUTE IS NO LONGER VALID
+        destinationSelect.addEventListener("change", () => {
+            routeData = null;
+
+            routeResult.innerHTML =
+                "<p class='muted'>Area changed. Check the shortest route again.</p>";
+        });
+
+        checkRouteButton.addEventListener("click", checkRoute);
+
+        // PLACE ORDER
+        placeOrderButton.addEventListener("click", placeOrder);
+
+        async function placeOrder() {
+            if (submitting || orderPlaced) {
+                return;
+            }
+
+            setStatus("");
+
+            if (!form.reportValidity()) {
+                return;
+            }
+
+            if (!cartData || !cartData.items || cartData.items.length === 0) {
+                setStatus("Your cart is empty.", true);
+                await loadCart();
+                return;
+            }
+
+            // Make sure route corresponds to currently selected area.
+            if (
+                !routeData ||
+                String(routeData.destinationId) !== String(destinationSelect.value)
+            ) {
+                const success = await checkRoute();
+
+                if (!success) {
+                    setStatus("Please fix the route issue before placing your order.", true);
+                    return;
+                }
+            }
+
+            submitting = true;
+            placeOrderButton.disabled = true;
+            checkRouteButton.disabled = true;
+
+            try {
+                const orderId = Math.floor(Math.random() * 900000) + 100000;
+
+                const orderDetails = {
+                    orderId: orderId,
+                    username: username || "User",
+                    customerName: document.getElementById("customerName").value.trim(),
+                    address: document.getElementById("address").value.trim(),
+                    city: document.getElementById("city").value.trim(),
+                    pincode: document.getElementById("pincode").value.trim(),
+                    paymentMethod: document.getElementById("paymentMethod").value,
+                    paymentStatus: "Demo - not processed",
+                    destinationId: Number(destinationSelect.value),
+                    destinationName:
+                        destinationSelect.options[destinationSelect.selectedIndex].text,
+                    items: cartData.items,
+                    total: Number(cartData.total) || 0,
+                    distanceKm: Number(routeData.distanceKm),
+                    route: routeData.route || [],
+                    etaMinutes: Number(routeData.etaMinutes),
+                    orderStatus: "Pending",
+                    createdAt: new Date().toISOString()
+                };
+
+                // Save details locally for tracking page.
+                // This is browser-local demo storage, not server-side persistence.
+                localStorage.setItem(
+                    "quickbyteLastOrder",
+                    JSON.stringify(orderDetails)
+                );
+
+                // Use existing backend endpoint.
+                // It currently receives orderId only.
+                const response = await fetch(`${API}/order/place`, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({ orderId: orderId })
+                });
+
+                const result = await response.json();
+
+                if (!response.ok || result.success === false) {
+                    throw new Error(result.message || "Order placement failed");
+                }
+
+                // Use backend-confirmed values when available.
+                if (result.order) {
+                    if (result.order.orderId != null) {
+                        orderDetails.orderId = result.order.orderId;
+                    }
+
+                    if (result.order.total != null) {
+                        orderDetails.total = Number(result.order.total);
+                    }
+                }
+
+                orderPlaced = true;
+
+                localStorage.setItem(
+                    "quickbyteLastOrder",
+                    JSON.stringify(orderDetails)
+                );
+
+                showConfirmation(orderDetails);
+
+            } catch (error) {
+                console.error("Order placement error:", error);
+
+                // Keep the locally saved draft available if request outcome
+                // is unclear. Check the order queue before retrying if needed.
+                setStatus(
+                    "Order placement could not be confirmed: " +
+                    error.message +
+                    ". Please check your orders before trying again.",
+                    true
+                );
+
+                placeOrderButton.disabled = false;
+
+            } finally {
+                submitting = false;
+                checkRouteButton.disabled = false;
+            }
+        }
+
+        function showConfirmation(order) {
+            document.getElementById("checkoutSection").classList.add("hidden");
+            document.getElementById("summarySection").classList.add("hidden");
+            document.getElementById("actionSection").classList.add("hidden");
+
+            const details = document.getElementById("confirmationDetails");
+
+            details.innerHTML = `
+                <p><strong>Order ID:</strong> ${escapeHTML(order.orderId)}</p>
+                <p><strong>Name:</strong> ${escapeHTML(order.customerName)}</p>
+                <p><strong>Address:</strong>
+                    ${escapeHTML(order.address)}, ${escapeHTML(order.city)}
+                    - ${escapeHTML(order.pincode)}
+                </p>
+                <p><strong>Delivery Area:</strong> ${escapeHTML(order.destinationName)}</p>
+                <p><strong>Payment:</strong> ${escapeHTML(order.paymentMethod)}
+                    (Demo)</p>
+                <p><strong>Total:</strong> ₹${Number(order.total)}</p>
+                <p><strong>Graph Distance:</strong> ${Number(order.distanceKm)} km</p>
+                <p><strong>Estimated Delivery:</strong> About
+                    ${Number(order.etaMinutes)} minutes</p>
+                <p><strong>Status:</strong> ${escapeHTML(order.orderStatus)}</p>
+                <p class="muted">
+                    Order details are saved in this browser for the demo.
+                    Payment has not been processed.
+                </p>
+            `;
+
+            document.getElementById("confirmationSection").classList.remove("hidden");
+
+            document.getElementById("trackOrderButton").onclick = function () {
+                window.location.href =
+                    "tracking.html?destination=" +
+                    encodeURIComponent(order.destinationId) +
+                    "&orderId=" +
+                    encodeURIComponent(order.orderId);
+            };
+        }
+
+        function setStatus(message, isError = false) {
+            statusBox.textContent = message;
+            statusBox.className = isError ? "danger" : "success";
+        }
+
+        function escapeHTML(value) {
+            return String(value ?? "").replace(/[&<>"']/g, character => ({
+                "&": "&amp;",
+                "<": "&lt;",
+                ">": "&gt;",
+                '"': "&quot;",
+                "'": "&#39;"
+            })[character]);
+        }
+
+        // INITIAL LOAD
+        loadCart();
+    </script>
+
+</body>
+</html>
