@@ -129,7 +129,7 @@ The initial scope does not include:
 
 ## Team
 
-**Team Name:** TEAM QUIKEE\
+**Team Name:** TEAM QUICKBYTE\
 **Team ID:** DSCPP-III-2026-T221
 
   Member                  Student ID Role
