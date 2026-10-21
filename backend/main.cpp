@@ -69,6 +69,22 @@ int main()
 
             cout << "MENU_END" << endl;
         }
+        else if (command == "HELP")
+        {
+            cout << "Available Commands:" << endl;
+            cout << "MENU     - Display food menu" << endl;
+            cout << "ADD      - Add food to cart" << endl;
+            cout << "DISPLAY  - Display cart and total" << endl;
+            cout << "REMOVE   - Remove item from cart" << endl;
+            cout << "CLEAR    - Clear cart" << endl;
+            cout << "ORDER    - Place an order" << endl;
+            cout << "ORDERS   - Display orders" << endl;
+            cout << "PROCESS  - Process an order" << endl;
+            cout << "ROUTE    - Calculate shortest route" << endl;
+            cout << "TRACE    - Display route trace" << endl;
+            cout << "HELP     - Display available commands" << endl;
+            cout << "EXIT     - Exit the program" << endl;
+        }
 
         else if (command == "ADD")
         {
@@ -193,7 +209,6 @@ else if (command == "TRACE")
 
     calculateShortestPathTrace(destination);
 }
-
 
         else
         {
