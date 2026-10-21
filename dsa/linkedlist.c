@@ -30,11 +30,15 @@ void addToCart(int foodId, int price)
 
     struct Node *newNode;
 
-    newNode = (struct Node *)malloc(
-        sizeof(struct Node)
-    );
+    newNode = (struct Node *)malloc(sizeof(struct Node));
 
-    newNode->foodId = foodId;
+if (newNode == NULL)
+{
+    printf("Memory allocation failed!\n");
+    return;
+}
+
+newNode->foodId = foodId;
     newNode->price = price;
     newNode->quantity = 1;
     newNode->next = NULL;
