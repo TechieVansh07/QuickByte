@@ -17,11 +17,15 @@ void enqueueOrder(int orderId, int total)
 {
     struct Order *newOrder;
 
-    newOrder = (struct Order *)malloc(
-        sizeof(struct Order)
-    );
+   newOrder = (struct Order *)malloc(sizeof(struct Order));
 
-    newOrder->orderId = orderId;
+if (newOrder == NULL)
+{
+    printf("Memory allocation failed!\n");
+    return;
+}
+
+newOrder->orderId = orderId;
     newOrder->total = total;
     newOrder->next = NULL;
 
