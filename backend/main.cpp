@@ -69,6 +69,7 @@ int main()
 
             cout << "MENU_END" << endl;
         }
+
         else if (command == "HELP")
         {
             cout << "Available Commands:" << endl;
@@ -213,6 +214,7 @@ else if (command == "TRACE")
         else
         {
             cout << "Unknown command" << endl;
+            cout <<"Try using HELP command"<<endl;
         }
     }
 
