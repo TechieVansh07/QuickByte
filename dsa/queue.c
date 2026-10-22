@@ -46,7 +46,7 @@ void displayOrders()
 
     if (temp == NULL)
     {
-        printf("No pending orders\n");
+        printf("No pending orders left\n");
         return;
     }
 
