@@ -15,7 +15,7 @@ int main()
 {
     string command;
 
-    cout << "SmartFood C++ Engine Started" << endl;
+    cout << "QUICKBYTE C++ Engine Started" << endl;
 
     Food burger(
         101,

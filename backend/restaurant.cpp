@@ -51,6 +51,7 @@ void Restaurant::showMenu()
              << menu[i].getName()
              << " - Rs."
              << menu[i].getPrice()
+             << menu[i].showFood()
              << endl;
     }
 }
